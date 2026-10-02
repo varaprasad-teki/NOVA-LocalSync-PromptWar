@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NOVA CART — Local Shopping</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f6;color:#212121}
+:root{--blue:#2874f0;--yellow:#ff9f00;--green:#15803d;--red:#d32f2f;--muted:#707070}
+.top{background:var(--blue);color:#fff;height:62px;display:flex;align-items:center;gap:18px;padding:0 6%;position:sticky;top:0;z-index:20}
+.logo{font-size:23px;font-weight:800;white-space:nowrap}.logo small{display:block;font-size:10px;font-style:italic;color:#ffe500}
+.search{height:40px;background:#fff;display:flex;flex:1;max-width:650px;border-radius:2px;overflow:hidden}.search input{border:0;outline:0;padding:0 15px;flex:1;font-size:14px}.search button{border:0;background:#fff;color:var(--blue);font-size:18px;padding:0 16px}
+.topbtn{border:0;background:transparent;color:#fff;font-weight:700;font-size:14px;cursor:pointer}.cartbtn{font-size:15px}
+.nav{background:#fff;height:46px;display:flex;align-items:center;justify-content:center;gap:42px;border-bottom:1px solid #ddd;box-shadow:0 1px 2px #00000012;overflow:auto;white-space:nowrap}
+.nav span{font-weight:600;font-size:13px}.nav .sale{color:var(--blue)}
+main{max-width:1240px;margin:auto}.hero{background:#fff;margin:12px 0;padding:0;height:220px;display:grid;grid-template-columns:1.3fr .7fr;overflow:hidden}
+.heroText{padding:34px 45px;background:linear-gradient(110deg,#eaf2ff,#fff)}.hero h1{font-size:34px;margin:5px 0}.hero p{color:#555;line-height:1.5}.hero button{background:var(--blue);border:0;color:#fff;padding:11px 20px;font-weight:700;border-radius:2px}.heroArt{display:grid;place-items:center;font-size:95px;background:#eef5ff}
+.section{background:#fff;margin:12px 0;padding:18px}.title{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:13px;margin-bottom:12px}.title h2{font-size:20px;margin:0}.view{background:var(--blue);color:#fff;border:0;padding:9px 15px;font-weight:700}
+.categories{display:flex;justify-content:space-around;gap:14px;overflow:auto}.cat{text-align:center;min-width:100px;font-size:13px;font-weight:700}.catIcon{height:65px;width:65px;border-radius:50%;background:#f5f7fb;margin:auto auto 7px;display:grid;place-items:center;font-size:31px}
+.products{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.product{padding:12px;border:1px solid transparent;position:relative;cursor:pointer}.product:hover{border-color:#ddd;box-shadow:0 2px 8px #00000012}.pic{height:160px;background:#f7f8fa;display:grid;place-items:center;font-size:72px;border-radius:3px}.pname{font-size:14px;margin-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.price{font-size:17px;font-weight:800;margin-top:7px}.old{text-decoration:line-through;color:#888;font-size:12px;margin-left:5px}.off{color:var(--green);font-size:12px;font-weight:700;margin-left:5px}.rating{display:inline-block;background:#388e3c;color:#fff;padding:3px 6px;font-size:11px;margin-top:6px;border-radius:2px}.confidence{display:inline-block;font-size:10px;font-weight:700;padding:4px 6px;border-radius:3px;margin-top:7px}.high{background:#e8f5e9;color:#16733b}.medium{background:#fff3e0;color:#b45309}.low{background:#ffebee;color:#c62828}.local{font-size:11px;color:#666;margin-top:5px}.deal{background:#fff8e1;border:1px solid #ffe082;color:#8d6500;padding:7px;font-size:11px;margin-top:7px}
+.bottom{display:none}.cartPanel{position:fixed;right:-430px;top:0;width:410px;height:100vh;background:#fff;z-index:40;box-shadow:-5px 0 20px #0003;transition:.25s;padding:22px;overflow:auto}.cartPanel.open{right:0}.cartHead{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#eee;border-radius:50%;width:32px;height:32px}.cartItem{display:flex;gap:10px;padding:15px 0;border-bottom:1px solid #eee}.ci{font-size:38px;width:55px;height:55px;background:#f6f7f8;display:grid;place-items:center}.grow{flex:1}.checkout{width:100%;padding:14px;border:0;background:#fb641b;color:#fff;font-weight:800;margin-top:15px}.empty{color:#777;text-align:center;margin:60px 0}.notice{background:#e8f0fe;color:#174ea6;padding:12px;margin:10px 0;font-size:12px;line-height:1.5}
+@media(max-width:850px){.top{padding:0 10px;gap:8px}.topbtn{display:none}.hero{grid-template-columns:1fr;height:auto}.heroArt{display:none}.products{grid-template-columns:repeat(2,1fr)}.nav{justify-content:flex-start;padding:0 12px;gap:25px}.bottom{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;height:55px;z-index:30;justify-content:space-around;align-items:center;font-size:11px}.cartPanel{width:100%;right:-100%}}
+</style>
+</head>
+<body>
+<header class="top">
+<div class="logo">NOVA <small>Local Shopping</small></div>
+<div class="search"><input id="search" placeholder="Search for products, stores and more" oninput="render()"><button>⌕</button></div>
+<button class="topbtn">Login</button><button class="topbtn">More ▾</button>
+<button class="topbtn cartbtn" onclick="toggleCart()">🛒 Cart <span id="cartNum">0</span></button>
+</header>
+<nav class="nav">
+<span>🏠 Home</span><span>🛒 Grocery</span><span>💊 Pharmacy</span><span>🍞 Bakery</span><span>📚 Stationery</span><span>📱 Electronics</span><span class="sale">🔥 Local Deals</span>
+</nav>
+
+<main>
+<section class="hero">
+<div class="heroText">
+<div style="color:#2874f0;font-weight:800;font-size:12px">NOVA CART LOCALSYNC</div>
+<h1>Local shopping, now more reliable.</h1>
+<p>Shop nearby stores with a simple availability-confidence signal. If an item looks uncertain, we'll help you find an alternative before you pay.</p>
+<button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button>
+</div>
+<div class="heroArt">🛍️</div>
+</section>
+
+<section class="section">
+<div class="categories">
+<div class="cat"><div class="catIcon">🌾</div>Grocery</div><div class="cat"><div class="catIcon">🥛</div>Dairy</div><div class="cat"><div class="catIcon">💊</div>Pharmacy</div><div class="cat"><div class="catIcon">🍞</div>Bakery</div><div class="cat"><div class="catIcon">📓</div>Stationery</div><div class="cat"><div class="catIcon">🎧</div>Electronics</div>
+</div>
+</section>
+
+<section class="section">
+<div class="title"><h2>Deals of the Day</h2><button class="view">VIEW ALL</button></div>
+<div class="products" id="products"></div>
+</section>
+
+<section class="section">
+<div class="title"><h2>Why NOVA LocalSync?</h2></div>
+<div class="notice"><b>Inventory Confidence:</b> Unlike a simple “In Stock” label, LocalSync shows how recently the nearby store confirmed the product. Low-confidence products can trigger a substitute or store-confirmation step before checkout.</div>
+<div class="products" style="grid-template-columns:repeat(3,1fr)">
+<div><b>📍 Nearby stores</b><p style="color:#666;font-size:13px">Discover products from independent local retailers.</p></div>
+<div><b>✓ Better availability</b><p style="color:#666;font-size:13px">Reduce surprises caused by stale inventory information.</p></div>
+<div><b>⚡ Faster decisions</b><p style="color:#666;font-size:13px">Stores confirm only the products that need attention.</p></div>
+</div>
+</section>
+</main>
+
+<div class="cartPanel" id="cartPanel">
+<div class="cartHead"><h2>My Cart</h2><button class="close" onclick="toggleCart()">×</button></div>
+<div class="notice">LocalSync will check uncertain items before checkout.</div>
+<div id="cart"></div><div id="cartTotal"></div>
+</div>
+<div class="bottom"><span>🏠<br>Home</span><span>🔎<br>Search</span><span onclick="toggleCart()">🛒<br>Cart</span><span>👤<br>Account</span></div>
+
+<script>
+const items=[
+{id:1,n:"Amul Taaza Milk 1L",p:62,old:68,e:"🥛",r:"4.5",off:"8% off",s:"Ravi Supermarket",c:"High",fresh:"12 min ago"},
+{id:2,n:"Aashirvaad Atta 5kg",p:310,old:350,e:"🌾",r:"4.4",off:"11% off",s:"Sri Lakshmi Stores",c:"High",fresh:"8 min ago"},
+{id:3,n:"Britannia Bread 400g",p:48,old:55,e:"🍞",r:"4.3",off:"12% off",s:"Fresh Corner",c:"Medium",fresh:"3 hrs ago"},
+{id:4,n:"Paracetamol 500mg",p:28,old:32,e:"💊",r:"4.6",off:"12% off",s:"City Care Pharmacy",c:"High",fresh:"21 min ago"},
+{id:5,n:"A4 Notebook 200 pages",p:85,old:99,e:"📓",r:"4.5",off:"14% off",s:"Student Needs",c:"Low",fresh:"2 days ago"},
+{id:6,n:"Tata Salt 1kg",p:31,old:35,e:"🧂",r:"4.4",off:"11% off",s:"Sri Lakshmi Stores",c:"Medium",fresh:"5 hrs ago"},
+{id:7,n:"Colgate Toothpaste 200g",p:118,old:135,e:"🪥",r:"4.5",off:"13% off",s:"Ravi Supermarket",c:"High",fresh:"19 min ago"},
+{id:8,n:"Classmate Notebook",p:65,old:75,e:"📒",r:"4.2",off:"13% off",s:"Student Needs",c:"Medium",fresh:"4 hrs ago"},
+{id:9,n:"LED Bulb 9W",p:89,old:110,e:"💡",r:"4.1",off:"19% off",s:"City Electronics",c:"High",fresh:"31 min ago"},
+{id:10,n:"USB-C Cable",p:149,old:199,e:"🔌",r:"4.3",off:"25% off",s:"City Electronics",c:"Low",fresh:"1 day ago"}
+];
+let cart=[];
+function render(){
+ const q=(document.getElementById("search").value||"").toLowerCase();
+ const list=items.filter(x=>(x.n+" "+x.s).toLowerCase().includes(q));
+ document.getElementById("products").innerHTML=list.map(x=>`
+ <div class="product" onclick="add(${x.id})">
+ <div class="pic">${x.e}</div>
+ <div class="pname">${x.n}</div>
+ <span class="rating">${x.r} ★</span>
+ <span class="confidence ${x.c.toLowerCase()}">${x.c} availability</span>
+ <div class="price">₹${x.p}<span class="old">₹${x.old}</span><span class="off">${x.off}</span></div>
+ <div class="local">📍 ${x.s}</div>
+ <div class="deal">${x.c==="Low"?"⚠ Stock confirmation is old":x.c==="Medium"?"✓ Confirmed a few hours ago":"✓ Recently confirmed"} • ${x.fresh}</div>
+ </div>`).join("");
+}
+function add(id){if(!cart.includes(id))cart.push(id);renderCart();toggleCart(true)}
+function renderCart(){
+ const a=items.filter(x=>cart.includes(x.id));
+ document.getElementById("cartNum").textContent=a.length;
+ document.getElementById("cart").innerHTML=a.length?a.map(x=>`<div class="cartItem"><div class="ci">${x.e}</div><div class="grow"><b>${x.n}</b><div style="font-size:12px;color:#777;margin-top:4px">${x.s}</div><div style="margin-top:7px">₹${x.p}</div></div></div>`).join(""):'<div class="empty">Your cart is empty</div>';
+ const total=a.reduce((s,x)=>s+x.p,0),low=a.filter(x=>x.c==="Low");
+ document.getElementById("cartTotal").innerHTML=a.length?`<div style="border-top:1px solid #ddd;margin-top:10px;padding-top:15px"><b>Total</b><span style="float:right;font-size:20px">₹${total}</span></div>${low.length?'<div class="notice" style="background:#fff3e0;color:#9a3412">⚠ One item has low availability confidence. NOVA LocalSync will request confirmation or suggest a substitute before payment.</div>':''}<button class="checkout" onclick="checkout()">PLACE ORDER</button>`:"";
+}
+function toggleCart(force){document.getElementById("cartPanel").classList.toggle("open",force===true?true:undefined)}
+function checkout(){
+ const low=items.filter(x=>cart.includes(x.id)&&x.c==="Low");
+ if(low.length)alert("LocalSync check: "+low[0].n+" has low availability confidence. Please confirm with the store or choose a substitute before payment.");
+ else alert("Pre-check passed. Demo order ready for checkout.");
+}
+render();renderCart();
+</script>
+</body>
+</html>
